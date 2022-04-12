@@ -13,41 +13,51 @@ import static java.util.stream.Collectors.toList;
 class Result {
 
     /*
-     * Complete the 'maxDias' function below.
+     * Complete the 'calcularFase' function below.
      *
      * The function is expected to return an INTEGER.
      * The function accepts following parameters:
-     *  1. INTEGER N
-     *  2. INTEGER p
-     *  3. INTEGER q
-     *  4. INTEGER r
+     *  1. STRING pInicial
+     *  2. STRING pActual
      */
 
-    public static int maxDias(int N, int p, int q, int r) {
-        //hago un array bidimensional, donde la primera row son los dias
-        //el siguiente row son los dias cuando pide la empresa A. '1' es que pide, '0' es que no pide.
-        //el siguiente row son los dias que pide la empresa B.
-        //el siguiente row son los dias que pide la empresa C.
-        //si al sumar el comportamiento de las 3 empresas en el mismo dia da algo distinto de 1, implica que no se 
-        //puede utilizar ese dia
-        int[][]calendar = new int[4][N];
-        int counter=0;
-        for(int i=0; i<N; i++){
-            calendar[0][i]=i+1;
-            if((i+1)%p==0){
-                calendar[1][i]=1;
+    public static int calcularFase(String pInicial, String pActual) {
+    char[] initialPositions = new char[4];
+            char[] actualPositions= new char[4];
+            char[] auxPositions;
+            for(int i=0; i<4; i++){
+                initialPositions[i]=pInicial.charAt(i);
+                actualPositions[i]=pActual.charAt(i);
             }
-            if((i+1)%q==0){
-                calendar[2][i]=1;
+            auxPositions=initialPositions;
+            char prevFirstBackPosition;
+            char prevSecondBackPosition;
+            int counter=0;
+
+            if(Arrays.equals(initialPositions, actualPositions)){
+                counter=1;
             }
-            if((i+1)%r==0){
-                calendar[3][i]=1;
+            else{
+                for(int i=0; i<3; i++){
+                    prevFirstBackPosition=auxPositions[2];
+                    prevSecondBackPosition=auxPositions[3];
+                    auxPositions[2]=auxPositions[0];
+                    auxPositions[3]=auxPositions[1];
+                    auxPositions[0]=prevSecondBackPosition;
+                    auxPositions[1]=prevFirstBackPosition;
+                    boolean equals= Arrays.equals(auxPositions, actualPositions);
+                    if(equals){
+                        counter=i+2;
+                    }
+                }
             }
-            if(calendar[1][i]+calendar[2][i]+calendar[3][i]== 1){
-                counter++;
+            if(counter==0){
+                return -1;
             }
-        }
-        return counter;
+            else{
+                return counter;
+            }
+
     }
 
 }
@@ -57,28 +67,14 @@ public class Solution {
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
         BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(System.out));
 
-        int T = Integer.parseInt(bufferedReader.readLine().trim());
+        String inicial = bufferedReader.readLine();
 
-        IntStream.range(0, T).forEach(TItr -> {
-            try {
-                String[] firstMultipleInput = bufferedReader.readLine().replaceAll("\\s+$", "").split(" ");
+        String actual = bufferedReader.readLine();
 
-                int dias = Integer.parseInt(firstMultipleInput[0]);
+        int resFase = Result.calcularFase(inicial, actual);
 
-                int A = Integer.parseInt(firstMultipleInput[1]);
-
-                int B = Integer.parseInt(firstMultipleInput[2]);
-
-                int C = Integer.parseInt(firstMultipleInput[3]);
-
-                int resultado = Result.maxDias(dias, A, B, C);
-
-                bufferedWriter.write(String.valueOf(resultado));
-                bufferedWriter.newLine();
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
-        });
+        bufferedWriter.write(String.valueOf(resFase));
+        bufferedWriter.newLine();
 
         bufferedReader.close();
         bufferedWriter.close();
